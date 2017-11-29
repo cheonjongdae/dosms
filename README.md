@@ -1,2 +1,4 @@
-osms(office security management system)
+OSMS
 =============
+(Office Security Management System)
+-------------
