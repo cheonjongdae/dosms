@@ -1,4 +1,4 @@
 OSMS
 =============
-(Office Security Management System)
+-Office Security Management System
 -------------
