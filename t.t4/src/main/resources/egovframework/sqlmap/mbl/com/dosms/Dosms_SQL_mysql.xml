@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Sample">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="accountInfo" type="egovframework.dosms.service.AccountVO"/>
+	<typeAlias  alias="nightid" type="egovframework.dosms.service.NightIdVO"/>
+
+	<!-- 
+	<resultMap id="accountVO" class="egovframework.VO.accountVO">
+		<result property="account" column="account"/>
+		<result property="password" column="password"/>
+	</resultMap>
+	-->
+	
+	<!-- Account Query Start -->
+	<insert id="Account.addAccount">                
+		<![CDATA[
+			INSERT INTO EMPLOYEE (
+				 emp_id
+				, emp_pwd
+			) VALUES (
+				 #account#
+				, #password#
+			)
+		]]>
+	</insert>
+	
+	<delete id="Account.removeAccount">
+		<![CDATA[
+			DELETE FROM 
+				EMPLOYEE
+			WHERE 
+				emp_id = #account#
+		]]>
+	</delete>
+	
+	<select id="Account.readAccount" resultClass="egovMap">
+		<![CDATA[
+			SELECT 
+				EMP_ID, EMP_Pwd, EMP_Nm, DEPT_ID
+			FROM 
+				EMPLOYEE;
+		]]>
+	</select>
+
+	<select id="Account.readIdCount" resultClass="int">
+		<![CDATA[
+			SELECT 
+				COUNT(*)
+			FROM 
+				EMPLOYEE
+			WHERE
+				emp_id = #account#
+		]]>
+	</select>
+	
+	<select id="Account.readIdPasswordCount" resultClass="int">
+		<![CDATA[
+			SELECT 
+				COUNT(*)
+			FROM 
+				EMPLOYEE
+			WHERE
+				emp_id = #account#
+			AND
+				emp_pwd = #password#
+		]]>
+	</select>
+	
+	<select id="Account.readNight" resultClass="int">
+		<![CDATA[
+			SELECT 
+				COUNT(*)
+			FROM 
+				NIGHT_WORKER
+			WHERE
+				date1 = #date#
+			AND
+				emp_id = #enid#
+		]]>
+	</select>
+	
+	<select id="Account.readNightTotal" resultClass="int">
+		<![CDATA[
+			SELECT 
+				COUNT(*)
+			FROM 
+				NIGHT_WORKER
+			WHERE
+				date1 = #date#
+		]]>
+	</select>
+	
+	<select id="Account.readDeptId" resultClass="int">
+		<![CDATA[
+			SELECT 
+				dept_id
+			FROM 
+				EMPLOYEE
+			WHERE
+				emp_id = #account#
+		]]>
+	</select>
+	
+	<select id="Account.readSectorId" resultClass="String">
+		<![CDATA[
+			SELECT 
+				sector_id
+			FROM 
+				SECTOR_DEPT_INFO
+			WHERE
+				dept_id = #deptid#
+		]]>
+	</select>
+	
+	<select id="Account.readSecNm" resultClass="String">
+		<![CDATA[
+			SELECT 
+				sector_nm
+			FROM 
+				SECTOR_DEPT_INFO
+			WHERE
+				dept_id = #deptid#
+		]]>
+	</select>
+	
+	<select id="Account.readName" resultClass="String">
+		<![CDATA[
+			SELECT 
+				emp_nm
+			FROM 
+				EMPLOYEE
+			WHERE
+				emp_id = #account#
+		]]>
+	</select>
+	
+	<select id="Account.checkMainManager" resultClass="int">
+		<![CDATA[
+			SELECT 
+				COUNT(*)
+			FROM 
+				GENERAL_INSPECTOR
+			WHERE
+				emp_id = #account#
+		]]>
+	</select>
+	
+	<select id="Account.checkSubManager" resultClass="int">
+		<![CDATA[
+			SELECT 
+				COUNT(*)
+			FROM 
+				INSPECTOR
+			WHERE
+				emp_id = #account#
+		]]>
+	</select>
+	
+	<select id="Account.readManagerSecId" resultClass="String">
+		<![CDATA[
+			SELECT 
+				sector_id
+			FROM 
+				INSPECTOR
+			WHERE
+				emp_id = #account#
+		]]>
+	</select>
+	
+	<select id="Account.readManagerSecNm" resultClass="String">
+		<![CDATA[
+			select 
+				b.sector_nm 
+			FROM 
+				inspector as a 
+				INNER JOIN
+					sector_dept_info as b 
+					on a.sector_id = b.sector_id 
+			WHERE 
+				emp_id = #account# 
+			GROUP BY 
+				a.sector_id
+		]]>
+	</select>
+	<!-- Account Query End -->
+	
+	<!-- Security Query Start -->
+	<insert id="Security.addSecurity">                
+		<![CDATA[
+			INSERT INTO security_checklist_night (
+				date1
+				, sector_id
+				, emp_id
+				, doc_strg
+				, cln_stat
+				, light_stat
+				, fireext_stat
+				, door_stat
+				, inspect_time
+				, appendpic
+				, pic_sn
+				, cmnt
+				, chk
+				, registrant
+				, amender
+				
+			) VALUES (
+				#date#
+				, #sectorid#
+				, #empid#
+				, #first#
+				, #second#
+				, #third#
+				, #forth#
+				, #fifth#
+				, #inspecttime#
+				, #imgname#
+				, 0
+				, #cmnt#
+				, 0
+				, emp_id
+				, emp_id
+			)
+		]]>
+	</insert>
+	
+	<select id="Security.readTotalSectorList" resultClass="egovMap">
+		<![CDATA[
+			SELECT 
+				sector_id, sector_nm
+			FROM 
+				SECTOR_DEPT_INFO
+			GROUP BY
+				sector_id
+		]]>
+	</select>
+
+	<select id="Security.readCheckedSectorList" resultClass="egovMap">
+		<![CDATA[
+			SELECT 
+				a.sector_id, b.sector_nm
+			FROM 
+				security_checklist_night as a
+				
+				INNER JOIN
+					sector_dept_info as b
+					ON
+						a.sector_id = b.sector_id				
+			WHERE
+				a.date1 = #today#
+			GROUP BY
+				a.sector_id
+			HAVING
+				a.sector_id is not null
+		]]>
+	</select>
+
+	<select id="Security.readClickedSectorCount" resultClass="int">
+		<![CDATA[
+			SELECT
+				COUNT(n.sector_id)
+			FROM
+				(
+					SELECT 
+						sector_id
+					FROM 
+						security_checklist_night
+					WHERE
+						date1 = #today#
+					AND
+						sector_id = #stid#
+					GROUP BY
+						sector_id
+					HAVING
+						sector_id is not null
+				) n
+		]]>
+	</select>
+	
+	<select id="Security.readCheckedCalender" resultClass="int">
+		<![CDATA[
+			SELECT
+				COUNT(*)
+			FROM
+				night_worker
+			WHERE
+				emp_id = #enid#
+			AND
+				date1 >= #date#;
+		]]>
+	</select>
+	
+	<select id="Security.readNightCalender" resultClass="egovMap">
+		<![CDATA[
+			SELECT
+				a.date1, a.emp_id, a.emp_nm, b.dept_id, c.dept_nm
+			FROM
+				night_worker as a
+				INNER JOIN
+					employee as b
+					ON
+						a.emp_id = b.emp_id
+				INNER JOIN
+					sector_dept_info as c
+					ON
+						b.dept_id = c.dept_id
+			WHERE
+				a.date1 >= DATE_ADD((SELECT date1 FROM night_worker where emp_id = #enid#), INTERVAL -14 DAY)
+			AND
+				a.date1 <= DATE_ADD((SELECT date1 FROM night_worker where emp_id = #enid#), INTERVAL 15 DAY)
+			GROUP BY
+				a.date1
+			HAVING
+				count(a.date1) = 1
+		]]>
+	</select>
+	<!-- Security Query End -->
+	
+	<!-- Final Query Start -->
+	<insert id="Final.addFinalInfo">                
+		<![CDATA[
+			INSERT INTO security_checklist_final (
+				date1
+				, sector_id
+				, dept_id
+				, emp_id
+				, doc_strg
+				, cln_stat
+				, light_stat
+				, fireext_stat
+				, door_stat
+				, inspect_time
+				, appendpic
+				, pic_sn
+				, cmnt
+				, chk
+				, registrant
+				, amender
+				
+			) VALUES (
+				#date#
+				, #sectorid#
+				, #deptid#
+				, #empid#
+				, #first#
+				, #second#
+				, #third#
+				, #forth#
+				, #fifth#
+				, #inspecttime#
+				, #imgname#
+				, 0
+				, #cmnt#
+				, 0
+				, #empid#
+				, #empid#
+			)
+		]]>
+	</insert>
+	
+	<select id="Final.readExistSectorCount" resultClass="int">
+		<![CDATA[
+			SELECT
+				COUNT(n.sector_id)
+			FROM
+				(
+					SELECT 
+						sector_id
+					FROM 
+						security_checklist_final
+					WHERE
+						date1 = #today#
+					AND
+						sector_id = #stid#
+					GROUP BY
+						sector_id
+					HAVING
+						sector_id is not null
+				) n
+		]]>
+	</select>
+	
+	<select id="Final.readCheckedCalender" resultClass="int">
+		<![CDATA[
+			SELECT
+				COUNT(*)
+			FROM
+				night_worker
+			WHERE
+				emp_id = #enid#
+			AND
+				date1 >= #date#;
+		]]>
+	</select>
+	
+	<select id="Final.readNightCalender" resultClass="egovMap">
+		<![CDATA[
+			SELECT
+				a.date1, a.emp_id, a.emp_nm, b.dept_id, c.dept_nm
+			FROM
+				night_worker as a
+				INNER JOIN
+					employee as b
+					ON
+						a.emp_id = b.emp_id
+				INNER JOIN
+					sector_dept_info as c
+					ON
+						b.dept_id = c.dept_id
+			WHERE
+				a.date1 >= DATE_ADD((SELECT date1 FROM night_worker where emp_id = #enid#), INTERVAL -14 DAY)
+			AND
+				a.date1 <= DATE_ADD((SELECT date1 FROM night_worker where emp_id = #enid#), INTERVAL 15 DAY)
+			GROUP BY
+				a.date1
+			HAVING
+				count(a.date1) = 1
+		]]>
+	</select>
+	
+	<!-- Final Query End -->
+	
+	<!-- SubManager Query Start -->
+	<select id="SubManager.readCheckListFinal" resultClass="egovMap">
+		<![CDATA[
+			SELECT
+				a.date1
+				, a.sector_id
+				, a.emp_id
+				, a.doc_strg as 'doc_strg_final'
+				, a.cln_stat as 'cln_stat_final'
+				, a.light_stat as 'light_stat_final'
+				, a.fireext_stat as 'fireext_stat_final'
+				, a.door_stat as 'door_stat_final'
+				, a.inspect_time as 'inspect_time_final'
+				, a.appendpic as 'appendpic_final'
+				, a.pic_sn as 'pic_sn_final'
+				, a.cmnt as 'cmnt_final'
+				, a.chk as 'chk_final'
+			FROM
+				security_checklist_final as a
+			WHERE
+				a.date1= #today#
+			AND
+				a.sector_id = #stid#
+		]]>
+	</select>
+	
+	<select id="SubManager.readCheckListNight" resultClass="egovMap">
+		<![CDATA[
+			SELECT
+				b.date1
+				, b.sector_id
+				, b.emp_id
+				, b.doc_strg as 'doc_strg_night'
+				, b.cln_stat as 'cln_stat_night'
+				, b.light_stat as 'light_stat_night'
+				, b.fireext_stat as 'fireext_stat_night'
+				, b.door_stat as 'door_stat_night'
+				, b.inspect_time as 'inspect_time_night'
+				, b.appendpic as 'appendpic_night'
+				, b.pic_sn as 'pic_sn_night'
+				, b.cmnt as 'cmnt_night'
+				, b.chk as 'chk_night'
+			FROM
+				security_checklist_night as b
+			WHERE
+				b.date1= #today#
+			AND
+				b.sector_id = #stid#
+		]]>
+	</select>
+	
+	<select id="SubManager.readChecked" resultClass="int">
+		<![CDATA[
+			SELECT
+				count(n.date1)
+			FROM
+				(
+					SELECT
+						date1
+					FROM
+						inspector_checklist
+					WHERE
+						date1 = #today#
+					AND
+						sector_id = #stid#
+					GROUP BY
+						date1
+				) n
+		]]>
+	</select>
+	
+	<insert id="SubManager.insertSubManagerCheck">                
+		<![CDATA[
+			INSERT INTO inspector_checklist (
+				date1
+				, sector_id
+				, emp_id
+				, cmnt
+				, issue	
+				, registrant
+				, amender
+				
+			) VALUES (
+				#datee#
+				, #sectorid#
+				, #empid#
+				, #cmnt#
+				, 1
+				, #empid#
+				, #empid#
+			)
+		]]>
+	</insert>
+	<!-- SubManager Query End -->
+	
+	<!-- MainManager Query Start -->
+	<select id="MainManager.readTotalSectorListManager" resultClass="egovMap">
+		<![CDATA[
+			SELECT 
+				sector_id, sector_nm
+			FROM 
+				SECTOR_DEPT_INFO
+			GROUP BY
+				sector_id
+		]]>
+	</select>
+	
+	<select id="MainManager.readCheckedSectorListManager" resultClass="egovMap">
+		<![CDATA[
+			SELECT 
+				sector_id, cmnt, issue
+			FROM 
+				inspector_checklist
+			WHERE
+				date1 = #today#
+		]]>
+	</select>
+	
+	<select id="MainManager.readChecked" resultClass="int">
+		<![CDATA[
+			SELECT
+				count(n.date1)
+			FROM
+				(
+					SELECT
+						date1
+					FROM
+						GEN_LIST_CHKLIST
+					WHERE
+						date1 = #today#
+					GROUP BY
+						date1
+				) n
+		]]>
+	</select>
+	
+	<insert id="MainManager.insertMainManagerCheck">                
+		<![CDATA[
+			INSERT INTO GEN_LIST_CHKLIST (
+				date1
+				, emp_id
+				, chk	
+				, registrant
+				, amender
+				
+			) VALUES (
+				#date#
+				, #empid#
+				, 1
+				, #empid#
+				, #empid#
+			)
+		]]>
+	</insert>
+	
+	<select id="MainManager.readCheckedSubmit" resultClass="int">
+		<![CDATA[
+			SELECT
+				count(n.date1)
+			FROM
+				(
+					SELECT
+						date1
+					FROM
+						GEN_LIST_CHKLIST
+					WHERE
+						date1 = #today#
+					GROUP BY
+						date1
+				) n
+		]]>
+	</select>
+	<!-- MainManager Query End -->
+	
+	<!-- NightManagement Query Start -->
+	<select id="NightManagement.selectNWCount" resultClass="int">
+		<![CDATA[
+			SELECT 
+				count(*)
+			FROM 
+				night_worker
+			WHERE
+				date1 >= CURDATE()
+		]]>
+	</select>
+	
+	<update id="NightManagement.updateNWDate">
+		<![CDATA[
+			UPDATE 
+				night_worker
+			SET 
+				date1 = DATE_ADD(CURDATE(), INTERVAL #addCount# DAY)
+			ORDER BY
+				date1
+			limit 1
+		]]>
+	</update>
+	
+	<select id="NightManagement.maxNWDate" resultClass="java.sql.Date">
+		<![CDATA[
+			SELECT 
+				max(date1)
+			FROM 
+				night_worker
+		]]>
+	</select>
+	<!-- NightManagement Query End -->
+	
+	<!-- Admin Query Start -->
+	<select id="Admin.readAdminNightCalender" resultClass="egovMap">
+		<![CDATA[
+			SELECT
+				a.date1, a.emp_id, a.emp_nm, b.dept_id, c.dept_nm
+			FROM
+				night_worker as a
+				INNER JOIN
+					employee as b
+					ON
+						a.emp_id = b.emp_id
+				INNER JOIN
+					sector_dept_info as c
+					ON
+						b.dept_id = c.dept_id
+			ORDER BY
+				a.date1
+		]]>
+	</select>
+	
+	<update id="Admin.changeNightDate">
+		<![CDATA[
+			UPDATE 
+				night_worker
+			SET 
+				date1 = #changedate#
+			WHERE
+				emp_id = #changeid#
+		]]>
+	</update>
+	<!-- Admin Query End -->
+</sqlMap>
