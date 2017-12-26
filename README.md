@@ -20,6 +20,6 @@ Office Security Management System Project
 ## Developer ##
 
 * [김성수](https://github.com/munak)
-* [안서윤]
-* [노희승]
-* [백연수]
+* 안서윤
+* 노희승
+* 백연수
