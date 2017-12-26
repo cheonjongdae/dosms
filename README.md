@@ -4,11 +4,6 @@ Office Security Management System Project
 
 ## Main Function ##
 
-* 
-* 
-* 
-* 
-
 ## Complete View ##
 
 - [x] Fianl Exterminatro
