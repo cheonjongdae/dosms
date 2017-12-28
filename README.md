@@ -10,7 +10,7 @@ Office Security Management System Project
 - [x] Night Worker
 - [x] Sub Security Manager
 - [x] Main Security Manager
-- [ ] Admin
+- [x] Admin
 
 ## Developer ##
 
